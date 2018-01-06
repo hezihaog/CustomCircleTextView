@@ -21,16 +21,30 @@ import android.view.animation.LinearInterpolator;
  */
 
 public class CircleTextView extends View {
+    /**
+     * 默认值
+     */
     private static int DEFAULT_CIRCLE_SIZE;
-
-    private int mWidth;
-    private int mHeight;
+    /**
+     * 绘制相关
+     */
     private Paint mCirclePaint;
     private Paint mTextPaint;
+    /**
+     * 控件的宽高
+     */
+    private int mWidth;
+    private int mHeight;
+    /**
+     * 配置参数
+     */
     private int mRadius;
     private int mCenterX;
     private int mCenterY;
     private float mAngle;
+    /**
+     * 素材
+     */
     private String mNeedDrawTextStr;
 
     public CircleTextView(Context context) {
@@ -88,17 +102,24 @@ public class CircleTextView extends View {
         mAngle = 0;
         //要画的文字
         mNeedDrawTextStr = "简书";
-
+        //使用动画改变，旋转、缩放、渐变
         ValueAnimator animator = ValueAnimator.ofFloat(0, 360);
         animator.setInterpolator(new LinearInterpolator());
         animator.setDuration(1500);
         animator.setRepeatCount(ValueAnimator.INFINITE);
-        animator.setRepeatMode(ValueAnimator.RESTART);
+        animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                Float cValue = (Float) animation.getAnimatedValue();
-                mAngle = cValue;
+                //更新旋转角度
+                mAngle = (Float) animation.getAnimatedValue();
+                //缩放
+                float scale = (mAngle / 360) * 1;
+                CircleTextView.this.setScaleX(scale + 1);
+                CircleTextView.this.setScaleY(scale + 1);
+                //渐变
+                float alpha = (mAngle / 360) * 1;
+                CircleTextView.this.setAlpha(alpha);
                 postInvalidate();
             }
         });
@@ -113,6 +134,9 @@ public class CircleTextView extends View {
         setMeasuredDimension(width, height);
     }
 
+    /**
+     * 决定测量大小
+     */
     private int measureSpec(int measureSpec) {
         int result;
         //取出模式和大小
@@ -151,6 +175,9 @@ public class CircleTextView extends View {
         canvas.drawText(mNeedDrawTextStr, startX, endY, mTextPaint);
     }
 
+    /**
+     * -------------------- 转换方法 --------------------
+     */
     public static int dip2px(Context context, float dipValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dipValue * scale + 0.5f);
